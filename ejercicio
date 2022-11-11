@@ -1,0 +1,143 @@
+use std::fs::File;
+use std::path::Path;
+use std::io::Read;
+use std::fs::OpenOptions;
+use std::io::Write;
+
+//Estructura para los dtos de la persona.
+#[derive(Default)]
+struct Persona{
+    nombre: String,
+    edad: u8,
+    rut: String,
+    mascota: [Mascota; 5],
+}
+
+//Estructura para los datos de las mascotas.
+#[derive(Default)]
+struct Mascota{
+    nombre: String,
+    _tipo: String,
+    _color: String,
+}
+
+//Leer el archivo.
+fn read_file(mut f: &File){
+    let mut text = String::new();
+    f.read_to_string(&mut text).unwrap();
+    println!("{}", &text);
+}
+
+//Crear archivo en blanco.
+fn create_blank_file(p: &Path){
+    let _file = File::create(p).expect("El archivo no pudo crearse");
+    println!("El archivo fue creado");
+
+}
+
+
+/*fn add_new_content(mut f: &File){
+
+    f.write_all(b"Nuevo texto");
+}
+*/
+
+//Abrir el archivo para agregar información.
+fn open_file_to_append(p: &Path) -> File{
+
+    let mut binding = OpenOptions::new();
+    let binding = binding.append(true);
+    let file = match binding.open(p){
+        Err(_why) => panic!("No se puede abrir el archivo"),
+        Ok(file) => file,
+    };
+
+    //add_new_content(&file);
+
+    return file
+
+}
+
+//Abrir el archivo para leerlo
+fn open_file_to_read(p: &Path){
+    if Path::new(p).exists(){
+        let file = match File::open(&p){
+            Err(_why) => panic!("El archivo no se puede abrir..."),
+            Ok(file) => file,
+        };
+        read_file(&file)
+    } else {
+        create_blank_file(p);
+    }
+}
+
+//Función donde se crean las personas, luego son agregados al archivo de texto con ciertos datos seleccionados.
+fn create_persona(p: &Path){
+/*
+    m_blank = Mascota{nombre:"".to_string(),
+                    tipo:"".to_string(),
+                    color:"".to_string()};
+*/
+    let m1 = Mascota{nombre:"Chocolata".to_string(),
+                         _tipo:"Tortuga".to_string(),
+                         _color:"Negra".to_string()};
+
+    let mut p1 = Persona{nombre:"Tomás".to_string(),
+                                                edad: 9,
+                                                rut: "24419755-8".to_string(),
+                                                mascota: Default::default()};
+    
+    let mut p2 = Persona{nombre: "Amanda".to_string(),
+                                    edad: 18,
+                                    rut: "21560462-4".to_string(),
+                                    mascota: Default::default()};
+
+    
+    let m2 = Mascota{nombre:"Ratoncito".to_string(),
+                                    _tipo:"Perro".to_string(),
+                                    _color:"Negro".to_string()};
+    
+    let mut p3 = Persona{nombre: "Álvaro".to_string(),
+                                    edad: 19,
+                                    rut: "21322600-2".to_string(),
+                                    mascota: Default::default()};
+
+    let m3 = Mascota{nombre: "Beto".to_string(),
+                                    _tipo: "Perro".to_string(),
+                                    _color: "Café".to_string()};
+
+
+    p1.mascota[0] = m1;
+    p2.mascota[0] = m2;
+    p3.mascota[0] = m3;
+
+    let temp = format!("{}:{}:{}:{}", p1.nombre, 
+                                        p1.edad, 
+                                        p1.rut, 
+                                        p1.mascota[0].nombre,
+                                        //p1.mascota.tipo,
+                                        //p1.mascota.color
+                                        );
+    let temp2 = format!("\n{}:{}:{}:{}", p2.nombre,
+                                            p2.edad,
+                                            p2.rut,
+                                            p2.mascota[0].nombre);
+
+    let temp3 = format!("\n{}:{}:{}:{}", p3.nombre,
+                                                p3.edad,
+                                                p3.rut,
+                                                p3.mascota[0].nombre);
+    let temp4 = format!("{}{}{}", temp, temp2, temp3);
+    let mut _file = open_file_to_append(p).write_all(temp4.as_bytes());
+
+}
+
+//Se ejecutan todas las funciones anteriores.
+fn main(){
+    let path = Path::new("ejemplo.txt");
+    open_file_to_read(path);
+    //let file = open_file_to_append(path);
+    //add_new_content(&file);
+    create_persona(path);
+    open_file_to_read(path);
+}
